@@ -1,6 +1,21 @@
 
 #include "clipperplus/utils.h"
 
+
+
+
+
+std::string cert_to_string(Certificate cert){
+    switch(cert){
+        case NONE: return "NONE";
+        case PRUNING: return "PRUNING";
+        case KCORE: return "KCORE";
+        case CHROMATIC: return "CHROMATIC";
+        default: return "Unknown Certificate";
+    }
+}
+
+
 namespace clipperplus{
 
 /////////////////////////////////////////////////////////////////////////////

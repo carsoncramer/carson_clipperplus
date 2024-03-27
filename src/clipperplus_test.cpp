@@ -11,6 +11,8 @@ c++ tests for clipper+ library
 #include "clipperplus/clipperplus_clique.h"
 #include "pmc/pmc_heuristic.h"
 
+#include "clipperplus/utils.h"
+
 
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
@@ -85,14 +87,14 @@ int test_clipperplus(const Eigen::MatrixXd& adj) {
     // run clipperplus_clique    
     int clique_size = 0;
     std::vector<int> clique;
-    int certificate = 0;
+    Certificate certificate = NONE;
     clipperplus::clipperplus_clique(adj, clique_size, clique, certificate);
 
     std::cout << "clipperplus clique size: " << clique_size << std::endl;
     std::cout << "clipperplus clique: ";
     for (int i : clique) {std::cout << i << " ";}
     std::cout << std::endl;
-    std::cout << "clipperplus certification type: " << certificate << std::endl;
+    std::cout << "clipperplus certification type: " << cert_to_string(certificate) << std::endl;
     
     return 1;
 }

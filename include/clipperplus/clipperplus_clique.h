@@ -14,6 +14,6 @@ namespace clipperplus {
 int clipperplus_clique(const Eigen::MatrixXd& adj,
                        int& clique_size,
                        std::vector<int>& clique,
-                       int& certificate);
+                       Certificate& certificate);
 
 } // namespace clipperplus

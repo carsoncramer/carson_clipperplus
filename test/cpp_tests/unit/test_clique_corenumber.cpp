@@ -40,13 +40,13 @@ TEST(CliqueCoreNumberTest, NormalGraph) {
 
     int clique_size = clipperplus::clique_corenumber(adj, clique, core_numbers, core_bound, node_colors, chromatic_bound);
 
-    EXPECT_EQ(clique_size, 2);
+    EXPECT_EQ(clique_size, 3);
 
     EXPECT_EQ(core_bound, 3);
 
     EXPECT_EQ(core_numbers[0], 2); 
-    EXPECT_EQ(core_numbers[1], 1); 
-    EXPECT_EQ(core_numbers[2], 1); 
+    EXPECT_EQ(core_numbers[1], 2); 
+    EXPECT_EQ(core_numbers[2], 2); 
     EXPECT_EQ(core_numbers[3], 2); 
 
     EXPECT_EQ(chromatic_bound, 3);

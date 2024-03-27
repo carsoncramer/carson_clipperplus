@@ -5,15 +5,16 @@ Author: kaveh fathian (kavehfathian@gmail.com)
  */
 
 #include "clipperplus/clipperplus_clique.h"
+#include "clipperplus/utils.h"
 
 namespace clipperplus {
 
 int clipperplus_clique(const Eigen::MatrixXd& adj,
                        int& clique_size,
                        std::vector<int>& clique,
-                       int& certificate) {
+                       Certificate& certificate) {
     
-    certificate = 0; // initialize to 0
+    certificate = NONE; // initialize to 0
 
     const int nnodes = adj.rows(); // number of graph nodes
     const int nedges = adj.sum()/2; // number of graph edges    
@@ -61,7 +62,7 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
         #endif
         clique = clique_core;
         clique_size = clique_size_core;
-        certificate = 1; // certified based on pruning heuristic clique
+        certificate = PRUNING; // certified based on pruning heuristic clique
         return clique_size_core;
     } else {
         #ifdef DEBUG
@@ -176,12 +177,12 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
     }
     
     if (clique_size == core_bound) {
-        certificate = 2; // certified based on max kcore 
+        certificate = KCORE; // certified based on max kcore 
         #ifdef DEBUG
             std::cout << "max clique found; certified by max kcore." << std::endl;
         #endif
     } else if (clique_size == chromatic_bound) {
-        certificate = 3; // certified based on chromatic number
+        certificate = CHROMATIC; // certified based on chromatic number
         #ifdef DEBUG
             std::cout << "max clique found; certified by chromatic number." << std::endl;
         #endif
