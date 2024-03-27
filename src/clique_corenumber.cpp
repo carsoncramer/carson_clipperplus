@@ -20,97 +20,97 @@ namespace clipperplus {
 int find_heuristic_clique(const Eigen::MatrixXd& adj, 
                           const std::vector<int>& core_numbers,
                           std::vector<int>& clique) {
-const int nnodes = adj.cols(); // number of nodes
+    const int nnodes = adj.cols(); // number of nodes
 
-// if graph has no edges, return trivial clique
-if (adj.sum() == 0) { 
-    clique.push_back(0);
-    return 1;
-    }
-
-// initialize
-int max_val = 0;
-
-// std::cout << "\n\n";
-// std::cout << "nnodes: " << nnodes << std::endl;
-// std::cout<<"cn: "; for (int elm:core_numbers) {std::cout << elm << " ";} std::cout<<std::endl;
-// std::cout<<"cn.size(): " << core_numbers.size() <<std::endl;
-
-// order of nodes in decresing core number
-std::vector<int> node_order(core_numbers.size());
-std::iota(node_order.begin(), node_order.end(), 0); // initialize node_order with sequential integers from 0 to core_numbers.size()-1
-// std::cout<<"node_order: "; for (int elm:node_order) {std::cout << elm << " ";} std::cout<<std::endl;
-std::stable_sort(node_order.begin(), node_order.end(), [&core_numbers](int a, int b) {
-    return core_numbers[a] > core_numbers[b]; });
-// std::cout<<"node_order: "; for (int elm:node_order) {std::cout << elm << " ";} std::cout<<std::endl;
-
-for (int i : node_order) {
-    // std::cout << "i: " << i << std::endl;
-
-    if (core_numbers[i] > max_val) { //if node 'i' core number is >= max_val
-    // subset of neighbors of node 'i' with core numbers >= max_val    
-    std::vector<int> nb_idx; // index of nonzero elements on row 'i'
-    nb_idx.reserve(nnodes); // reserve memory
-    for (int j=0; j<nnodes; ++j) { 
-        if (adj(i,j) != 0) {
-            nb_idx.push_back(j);
+    // if graph has no edges, return trivial clique
+    if (adj.sum() == 0) { 
+        clique.push_back(0);
+        return 1;
         }
-    }
 
-    std::vector<int> select_idx; // index of core_numbers(nb_idx) >= max_val
-    select_idx.reserve(nnodes); // reserve memory
-    for (int k=0; k<nb_idx.size(); ++k) {
-        if (core_numbers[nb_idx[k]] >= max_val) {
-            select_idx.push_back(k);
-        }
-    }
-    std::vector<int> subset_idx;
-    subset_idx.reserve(nnodes); // reserve memory
-    for (int idx : select_idx) {
-        if (idx >= 0 && idx < nb_idx.size()) {
-            subset_idx.push_back(nb_idx[idx]);
-        }
-    }
+    // initialize
+    int max_val = 0;
 
-    if (subset_idx.empty()) {continue;}
+    // std::cout << "\n\n";
+    // std::cout << "nnodes: " << nnodes << std::endl;
+    // std::cout<<"cn: "; for (int elm:core_numbers) {std::cout << elm << " ";} std::cout<<std::endl;
+    // std::cout<<"cn.size(): " << core_numbers.size() <<std::endl;
 
-    std::vector<int> clq;
-    clq.reserve(nnodes); // reserve memory
-    clq.push_back(i); // initialize clique with node 'i'
+    // order of nodes in decresing core number
+    std::vector<int> node_order(core_numbers.size());
+    std::iota(node_order.begin(), node_order.end(), 0); // initialize node_order with sequential integers from 0 to core_numbers.size()-1
+    // std::cout<<"node_order: "; for (int elm:node_order) {std::cout << elm << " ";} std::cout<<std::endl;
+    std::stable_sort(node_order.begin(), node_order.end(), [&core_numbers](int a, int b) {
+        return core_numbers[a] > core_numbers[b]; });
+    // std::cout<<"node_order: "; for (int elm:node_order) {std::cout << elm << " ";} std::cout<<std::endl;
 
-    // order selected subset of neighbors in decresing core number
-    std::vector<int> core_numbers_subset_idx;
-    core_numbers_subset_idx.reserve(nnodes); // reserve memory
-    for (int idx : subset_idx) {
-        core_numbers_subset_idx.push_back(core_numbers[idx]);        
-    }
-    std::vector<int> order_innerloop(core_numbers_subset_idx.size());
-    std::iota(order_innerloop.begin(), order_innerloop.end(), 0); // initialize with sequential integers from 0 to size()-1
-    std::stable_sort(order_innerloop.begin(), order_innerloop.end(), [&](int a, int b) {
-        return core_numbers_subset_idx[a] > core_numbers_subset_idx[b];
-    });
+    for (int i : node_order) {
+        // std::cout << "i: " << i << std::endl;
 
-    for (int idx : order_innerloop) {
-        int j = subset_idx[idx]; // node index
-        // if node 'j' union with 'clq' is a clique, then add 'j' to 'clq'        
-        bool allElementsTrue = true;
-        for (int idx_clq : clq) {
-            if (adj(j,idx_clq) == 0) {
-                allElementsTrue = false;
-                break; // No need to continue checking
+        if (core_numbers[i] > max_val) { //if node 'i' core number is >= max_val
+        // subset of neighbors of node 'i' with core numbers >= max_val    
+        std::vector<int> nb_idx; // index of nonzero elements on row 'i'
+        nb_idx.reserve(nnodes); // reserve memory
+        for (int j=0; j<nnodes; ++j) { 
+            if (adj(i,j) != 0) {
+                nb_idx.push_back(j);
             }
         }
-        if (allElementsTrue) {clq.push_back(j);} //add 'j' to 'clq'
-    }
 
-    if (clq.size() > max_val) { // store better clique
-        clique = clq;
-        max_val = clq.size();
-    }    
-    } //if(core_numbers[i]>max_val)
-} //for(i:node_order)
+        std::vector<int> select_idx; // index of core_numbers(nb_idx) >= max_val
+        select_idx.reserve(nnodes); // reserve memory
+        for (int k=0; k<nb_idx.size(); ++k) {
+            if (core_numbers[nb_idx[k]] >= max_val) {
+                select_idx.push_back(k);
+            }
+        }
+        std::vector<int> subset_idx;
+        subset_idx.reserve(nnodes); // reserve memory
+        for (int idx : select_idx) {
+            if (idx >= 0 && idx < nb_idx.size()) {
+                subset_idx.push_back(nb_idx[idx]);
+            }
+        }
 
-return 1;
+        if (subset_idx.empty()) {continue;}
+
+        std::vector<int> clq;
+        clq.reserve(nnodes); // reserve memory
+        clq.push_back(i); // initialize clique with node 'i'
+
+        // order selected subset of neighbors in decresing core number
+        std::vector<int> core_numbers_subset_idx;
+        core_numbers_subset_idx.reserve(nnodes); // reserve memory
+        for (int idx : subset_idx) {
+            core_numbers_subset_idx.push_back(core_numbers[idx]);        
+        }
+        std::vector<int> order_innerloop(core_numbers_subset_idx.size());
+        std::iota(order_innerloop.begin(), order_innerloop.end(), 0); // initialize with sequential integers from 0 to size()-1
+        std::stable_sort(order_innerloop.begin(), order_innerloop.end(), [&](int a, int b) {
+            return core_numbers_subset_idx[a] > core_numbers_subset_idx[b];
+        });
+
+        for (int idx : order_innerloop) {
+            int j = subset_idx[idx]; // node index
+            // if node 'j' union with 'clq' is a clique, then add 'j' to 'clq'        
+            bool allElementsTrue = true;
+            for (int idx_clq : clq) {
+                if (adj(j,idx_clq) == 0) {
+                    allElementsTrue = false;
+                    break; // No need to continue checking
+                }
+            }
+            if (allElementsTrue) {clq.push_back(j);} //add 'j' to 'clq'
+        }
+
+        if (clq.size() > max_val) { // store better clique
+            clique = clq;
+            max_val = clq.size();
+        }    
+        } //if(core_numbers[i]>max_val)
+    } //for(i:node_order)
+
+    return 1;
 } //find_heuristic_clique
 
 ///////////////////////////////////////////////////////////////////////////////////

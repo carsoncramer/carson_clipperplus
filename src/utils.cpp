@@ -23,16 +23,21 @@ int find_index(const std::vector<int>& vec, int val) {
 void adjmat_to_adjlist(const Eigen::MatrixXd& adj,
                        const int& nnodes,
                        const long long& nedges,                      
-                       int* ei,
-                       int* ej) {
-    int counter = 0;
+                       std::vector<int>& ei,
+                       std::vector<int>& ej) {
+    if (adj.rows() != adj.cols()) {
+        throw std::invalid_argument("adjacency matrix must be square");
+    }
+
+    ei.clear();
+    ej.clear();
+    
     for (int i=0; i<nnodes-1; i++) {
         for (int j=i+1; j<nnodes; j++) {
         if (adj(i,j)==1) {
                 // std::cout << "idx i: " << i << ",  idx j: " << j << std::endl;
-                ei[counter] = i;
-                ej[counter] = j;
-                counter++;
+                ei.push_back(i);
+                ej.push_back(j);
             }
         }
     }

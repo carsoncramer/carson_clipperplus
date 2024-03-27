@@ -19,6 +19,27 @@ option(OPTION_DEBUG_OPTIM_FLAG "Enable debugging clipper optimiziation" ON)
 option(OPTION_BUILD_PMC_HEU "Enable debugging output" ON)
 option(OPTION_BUILD_BINDINGS_MATLAB "Build MATLAB bindings" ON)
 # option(OPTION_BUILD_BINDINGS_PYTHON "Build Python bindings" ON)
+option(BUILD_TESTS "Build the tests" ON)
+
+###############################################################################
+# Google Test Integration
+###############################################################################
+
+# Download and unpack googletest at configure time
+if(BUILD_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.10.0
+    )
+
+    FetchContent_MakeAvailable(googletest)
+
+    enable_testing()
+    add_subdirectory(test/cpp_tests/)
+endif()
+
 
 ###############################################################################
 # Dependencies

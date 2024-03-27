@@ -14,8 +14,8 @@ int find_index(const std::vector<int>& vec, int val);
 void adjmat_to_adjlist(const Eigen::MatrixXd& adj,
                        const int& nnodes,
                        const long long& nedges,                      
-                       int* ei,
-                       int* ej);
+                       std::vector<int>& ei,
+                       std::vector<int>& ej);
 
 
 } //namespace clipperplus
