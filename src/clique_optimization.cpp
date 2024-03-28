@@ -9,7 +9,7 @@ Author: kaveh fathian (kavehfathian@gmail.com)
 
 namespace clipperplus {
 
-int clique_optimization(const Eigen::MatrixXd& M, 
+int clique_optimization(const Eigen::MatrixXd& affinity_matrix, 
                         const Eigen::VectorXd& u0,
                         int& clique_size,
                         std::vector<int>& clique) {
@@ -21,7 +21,7 @@ int clique_optimization(const Eigen::MatrixXd& M,
     clipper::Params params; // instantiate parameters     
     clipper::CLIPPER clipper(invariant, params); // clipper object
     // clipper.setMatrixData(M, M);
-    clipper.setMatrixData_old(M, M); // identical to matlab
+    clipper.setMatrixData_old(affinity_matrix, affinity_matrix); // identical to matlab
 
     // find the densest clique of the previously constructed consistency graph
     // clipper.solve(u0);

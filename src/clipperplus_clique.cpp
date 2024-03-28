@@ -18,21 +18,10 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
 
     const int nnodes = adj.rows(); // number of graph nodes
     const int nedges = adj.sum()/2; // number of graph edges    
-    
-    #ifdef DEBUG
-        std::cout << "number of graph nodes: " << nnodes << std::endl;
-        std::cout << "number of graph edges: " << nedges << std::endl;
-    #endif
-    
+ 
     // affinity matrix (adjacency matrix+ identity)
-    Eigen::MatrixXd M = adj + Eigen::MatrixXd::Identity(nnodes,nnodes); 
+    Eigen::MatrixXd affinity_matrix = adj + Eigen::MatrixXd::Identity(nnodes,nnodes); 
 
-    #ifdef DEBUG
-        // std::cout << "\nrunning clipperplus with affinity matrix:" << std::endl;
-        // std::cout << M << std::endl;
-        // std::cout << "\nrunning clipperplus with adjacency matrix:" << std::endl;
-        // std::cout << adj << std::endl;
-    #endif
     #ifdef DEBUG_TIMING
         const auto t1 = std::chrono::high_resolution_clock::now(); // timer
     #endif
@@ -57,19 +46,12 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
     #endif
     
     if (clique_size_core == core_bound) {
-        #ifdef DEBUG
-            std::cout << "heuristic clique is max clique; certified by pruning." << std::endl;
-        #endif
         clique = clique_core;
         clique_size = clique_size_core;
         certificate = PRUNING; // certified based on pruning heuristic clique
         return clique_size_core;
-    } else {
-        #ifdef DEBUG
-            std::cout << "pruning graph..." << std::endl;
-        #endif
-    }
-    
+    }     
+
     // prune graph: index of the nodes to prune or keep
     std::vector<int> idx_prune, idx_keep;
     idx_prune.reserve(nnodes); // reserve memory
@@ -82,26 +64,12 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
         }
     }
 
-    #ifdef DEBUG
-        std::cout << "idx_keep: ";
-        for (int i : idx_keep) {std::cout << i << " ";} std::cout << std::endl;
-        std::cout << "idx_prune: ";
-        for (int i : idx_prune) {std::cout << i << " ";} std::cout << std::endl;
-    #endif
-
     // pruned graph affinity matirx
-    Eigen::MatrixXd M_pruned = M(idx_keep, idx_keep);
-    #ifdef DEBUG
-        // std::cout << "pruned affinity matrix:\n" << M_pruned << std::endl;
-    #endif
-
+    Eigen::MatrixXd affinity_matrix_pruned = affinity_matrix(idx_keep, idx_keep);
 
     // create initial vector for optimization
     Eigen::VectorXd u0(idx_keep.size()); ///< initial vector used for local solver
     u0.setOnes(); // set all elements to 1
-    #ifdef DEBUG
-        // std::cout << "initial u0:\n" << u0 << std::endl;
-    #endif
 
     // remove heuristic clique indices
     for(int i = 0; i < clique_size_core; i++){
@@ -109,15 +77,9 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
         int idx = clipperplus::find_index(idx_keep, clique_core[i]);
         u0[idx] = 0; // remove heuristic clique 
     }
-    #ifdef DEBUG
-        // std::cout << "pruned u0:\n" << u0 << std::endl;
-    #endif
 
     // Normalize the vector
     u0.normalize();
-    #ifdef DEBUG
-        // std::cout << "normalized u0:\n" << u0 << std::endl;
-    #endif
 
     #ifdef DEBUG_TIMING
         const auto t3 = std::chrono::high_resolution_clock::now(); // timer
@@ -131,7 +93,7 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
     int clique_size_optim = 0; // initialize size of clique
     
     // find clique on pruned graph via optimization
-    clipperplus::clique_optimization(M_pruned, u0, clique_size_optim, clique_optim_pruned);
+    clipperplus::clique_optimization(affinity_matrix_pruned, u0, clique_size_optim, clique_optim_pruned);
 
     #ifdef DEBUG_TIMING
         const auto t4 = std::chrono::high_resolution_clock::now(); // timer
@@ -151,15 +113,6 @@ int clipperplus_clique(const Eigen::MatrixXd& adj,
         }
     }
 
-    #ifdef DEBUG
-        std::cout << "optim-based clique: ";
-        for (int i : clique_optim) {
-            std::cout << i << " ";
-        }
-        std::cout << std::endl;
-    #endif
-
-    
     // check if clique is certifiable as max clique
     clique_size = 0;
     if (clique_size_optim >= clique_size_core) {
